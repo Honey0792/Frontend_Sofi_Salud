@@ -12,7 +12,7 @@
   </v-dialog>
   <v-card width="700" height="auto" class="rounded-lg">
     <v-container>
-      <v-form ref="form" @submit.prevent="agregarMedicamento">
+      <v-form ref="form" @submit.prevent="modificarMedicamento">
         <v-row>
           <v-col>
             <v-text-field
@@ -81,7 +81,7 @@
           </v-col>
         </v-row>
         <v-row class="d-flex justify-center">
-          <v-btn color="success" type="submit" class="ma-3">Agregar</v-btn></v-row
+          <v-btn color="success" type="submit" class="ma-3">modificar</v-btn></v-row
         >
       </v-form>
     </v-container>
@@ -92,6 +92,12 @@
 import sofiSaludService from '@/services/sofiSaludService'
 
 export default {
+  props: {
+    id: {
+      type: Number,
+      required: true,
+    },
+  },
   data: () => ({
     alert: { show: false, message: '' },
     presentaciones: [],
@@ -101,13 +107,14 @@ export default {
       { id_clasificacion: 3, nombre_clasificacion: 'Alta' },
     ],
     medicamento: {
+      id: null,
       nombre: null,
       descripcion: null,
       principio_activo: null,
       id_clasificacion: null,
       id_presentacion: null,
-      laboratorio: null,
       dosificacion: null,
+      laboratorio: null,
     },
     globalRules: [(value) => !!value || 'Requerido'],
   }),
@@ -122,7 +129,25 @@ export default {
       }
     },
 
-    async agregarMedicamento() {
+    async obtenerMedicamentoById() {
+      try {
+        const res = await sofiSaludService.getMedicamentosById(this.id)
+        console.log(res)
+        const datosApi = res.data
+        this.medicamento.id = datosApi.id
+        this.medicamento.nombre = datosApi.nombre
+        this.medicamento.descripcion = datosApi.descripcion
+        this.medicamento.principio_activo = datosApi.principio_activo
+        this.medicamento.id_clasificacion = datosApi.clasificacion.id
+        this.medicamento.id_presentacion = datosApi.presentacion.id
+        this.medicamento.laboratorio = datosApi.laboratorio
+        this.medicamento.dosificacion = datosApi.dosificacion
+      } catch (error) {
+        console.log(error)
+      }
+    },
+
+    async modificarMedicamento() {
       const { valid } = await this.$refs.form.validate()
 
       if (!valid) {
@@ -134,12 +159,11 @@ export default {
         return
       }
       try {
-        const res = await sofiSaludService.postMedicamentos(this.medicamento)
-        console.log(res)
+        const res = await sofiSaludService.putMedicamento(this.medicamento)
         this.alert = {
           show: true,
           color: 'success',
-          message: 'Medicamento agregado correctamente.',
+          message: 'Medicamento editado correctamente.',
         }
         this.$emit('actualizar_tabla')
       } catch (error) {
@@ -154,6 +178,7 @@ export default {
     },
   },
   mounted() {
+    this.obtenerMedicamentoById()
     this.obtenerPresentaciones()
   },
 }
