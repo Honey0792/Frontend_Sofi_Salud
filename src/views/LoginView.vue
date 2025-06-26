@@ -88,10 +88,11 @@ export default {
         console.log(res)
         this.$router.push('/home')
       } catch (error) {
+        const msjError = error.response.data.message
         this.alert = {
           show: true,
           color: 'warning',
-          message: 'Error al iniciar sesión. Verifica tus credenciales.',
+          message: msjError,
         }
         console.log(error)
       }
