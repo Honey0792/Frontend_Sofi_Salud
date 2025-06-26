@@ -10,24 +10,28 @@
         <cartasUsuario ref="hijo" />
       </v-tabs-window-item>
 
-      <v-tabs-window-item value="two"> </v-tabs-window-item>
+      <v-tabs-window-item value="two">
+        <RegUsuario />
+      </v-tabs-window-item>
     </v-tabs-window>
   </v-app>
 </template>
 
 <script>
 import cartasUsuario from '@/components/Cards/cartasUsuarios.vue'
+import RegUsuario from '@/components/Forms/regUsuario.vue';
 export default {
   components: {
     cartasUsuario,
+    RegUsuario
   },
   data: () => ({
     tab: null,
   }),
   methods: {
-    // refrescarUsuarios(){
-    //   this.$refs.hijo.obtenerUsuarios()
-    // }
+    refrescarUsuarios(){
+      this.$refs.hijo.obtenerUsuarios()
+    }
   },
 }
 </script>

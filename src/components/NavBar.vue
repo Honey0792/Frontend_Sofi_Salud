@@ -5,7 +5,6 @@
       <!-- <v-icon class="ml-3">mdi-plus</v-icon> -->
       <v-toolbar-title>Al Servicio de tu salud</v-toolbar-title>
 
-
       <v-btn @click="cerrarSesion" icon>
         <v-icon>mdi-export</v-icon>
       </v-btn>
@@ -24,22 +23,37 @@
       <v-divider />
 
       <v-list density="compact" nav>
-        <v-list-item prepend-icon="mdi-home" title="Home" value="myfiles" to="/home"/>
-        <v-list-item prepend-icon="mdi-pill-multiple" title="Medicamentos" value="shared" to="/medicamentos" />
-        <v-list-item prepend-icon="mdi-account-multiple" title="Usuarios" value="starred" to="/usuarios" />
+        <v-list-item prepend-icon="mdi-home" title="Home" value="myfiles" to="/home" />
+        <v-list-item v-if="esVisible"
+          prepend-icon="mdi-pill-multiple"
+          title="Medicamentos"
+          value="shared"
+          to="/medicamentos"
+        />
+        <v-list-item v-if="esVisible"
+          prepend-icon="mdi-account-multiple"
+          title="Usuarios"
+          value="starred"
+          to="/usuarios"
+        />
       </v-list>
     </v-navigation-drawer>
   </v-layout>
 </template>
 
 <script>
-export default{
-  methods:{
-        cerrarSesion() {
-      sessionStorage.clear();
-      this.$router.push("/").then(() => {
-        this.$router.go(0);
-      });
+export default {
+  methods: {
+    cerrarSesion() {
+      sessionStorage.clear()
+      this.$router.push('/').then(() => {
+        this.$router.go(0)
+      })
+    },
+  },
+  computed: {
+    esVisible() {
+      return sessionStorage.getItem('role') === '1'
     },
   },
 }
