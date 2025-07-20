@@ -16,7 +16,7 @@
       @click="this.agregarMedicamento = false"
     ></v-icon>
     <v-container class="d-flex justify-center align-center">
-      <carta-añadir-medicamento @actualizar_tbla="obtenerMedicamentos" />
+      <carta-añadir-medicamento @actualizar_tabla="obtenerMedicamentos" />
     </v-container>
   </v-dialog>
   <v-card class="d-flex mx-10 ma-7">
@@ -58,6 +58,12 @@
             :total-visible="10"
             @update:model-value="onPageChange"
           />
+          <v-btn @click="reporteMedicamentos" color="#BAFFD3" variant="elevated"
+            >Crear Respaldo</v-btn
+          >
+          <v-btn @click="subirRespaldo" variant="elevated" class="ma-2" color="#E8906E"
+            >Cargar Respaldo</v-btn
+          >
         </div>
       </template>
       <template v-slot:item.actions="{ item }">
@@ -104,21 +110,27 @@
       </template>
     </v-card>
   </v-dialog>
+  <v-dialog v-model="dialogRespaldo">
+    <CartaCargarRespaldo @actualizar_tabla="obtenerMedicamentos" />
+  </v-dialog>
 </template>
 
 <script>
 import sofiSaludService from '@/services/sofiSaludService'
 import CartaAñadirMedicamento from '../Cards/cartaAñadirMedicamento.vue'
 import CartaEditMedicamento from '../Cards/cartaEditMedicamento.vue'
+import CartaCargarRespaldo from '../Cards/cartaCargarRespaldo.vue'
 
 export default {
   components: {
     CartaAñadirMedicamento,
     CartaEditMedicamento,
+    CartaCargarRespaldo,
   },
   data: () => ({
     dialogEditar: false,
     dialogEliminar: false,
+    dialogRespaldo: false,
     id_medicamento: null,
     nombre_medicamento: null,
     agregarMedicamento: false,
@@ -188,6 +200,10 @@ export default {
       this.dialogEditar = true
     },
 
+    subirRespaldo() {
+      this.dialogRespaldo = true
+    },
+
     eliminar(id, nombre) {
       this.id_medicamento = id
       this.nombre_medicamento = nombre
@@ -195,16 +211,43 @@ export default {
       console.log(this.id_medicamento, this.nombre_medicamento)
     },
 
-   async eliminarMedicamento(){
-    try {
-      const res = await sofiSaludService.deleteMedicamento(this.id_medicamento)
-      console.log(res)
-      this.dialogEliminar=false
-      this.obtenerMedicamentos()
-    } catch (error) {
-      console.log(error)
-    }
-   }
+    async eliminarMedicamento() {
+      try {
+        const res = await sofiSaludService.deleteMedicamento(this.id_medicamento)
+        console.log(res)
+        this.dialogEliminar = false
+        this.obtenerMedicamentos()
+      } catch (error) {
+        console.log(error)
+      }
+    },
+
+    async reporteMedicamentos() {
+      try {
+        const response = await sofiSaludService.getReporteMedicamento()
+        console.log(response)
+        // Crear un enlace temporal para descargar el archivo
+        const url = window.URL.createObjectURL(new Blob([response.data]))
+        const link = document.createElement('a')
+        link.href = url
+
+        // Obtener el nombre del archivo desde las cabeceras (si el servidor lo envía)
+        const contentDisposition = response.headers['content-disposition']
+        const fileName = contentDisposition
+          ? contentDisposition.split('filename=')[1].replace(/"/g, '')
+          : `respaldo_medicamentos_${new Date().toISOString()}.xlsx` // Nombre por defecto si no hay header
+
+        link.setAttribute('download', fileName)
+        document.body.appendChild(link)
+        link.click()
+
+        // Limpiar recursos
+        document.body.removeChild(link)
+        window.URL.revokeObjectURL(url)
+      } catch (error) {
+        console.error('Error:', error.response?.data || error.message)
+      }
+    },
   },
 
   watch: {

@@ -18,8 +18,16 @@ export default {
     return sofiSaludApi().post('/medicamentos/buscar', value)
   },
 
-    postUsuario(value) {
+  postUsuario(value) {
     return sofiSaludApi().post('/users', value)
+  },
+
+  subirRespaldo(formData) {
+    return sofiSaludApi().post(`/respaldo/cargar`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
   },
 
   //GET
@@ -35,20 +43,26 @@ export default {
     return sofiSaludApi().get(`/select/presentacion`)
   },
 
-    getUsuarios() {
+  getUsuarios() {
     return sofiSaludApi().get(`/users?pagina=1&limit=1000`)
   },
 
-    getUsuarioById(id) {
+  getUsuarioById(id) {
     return sofiSaludApi().get(`/users/${id}`)
-    },
+  },
+
+  getReporteMedicamento() {
+    return sofiSaludApi().get('/respaldo/generar', {
+      responseType: 'blob', // Para manejar archivos
+    })
+  },
 
   //PUT
   putMedicamento(value) {
     return sofiSaludApi().put(`/medicamentos`, value)
   },
 
-    putUsuario(value) {
+  putUsuario(value) {
     return sofiSaludApi().put(`/users`, value)
   },
 
@@ -58,7 +72,7 @@ export default {
     return sofiSaludApi().delete(`/medicamentos/${id}`)
   },
 
-    deleteUsuario(id) {
+  deleteUsuario(id) {
     return sofiSaludApi().delete(`/users/${id}`)
   },
 }
